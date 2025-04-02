@@ -28,7 +28,7 @@ go get -u github.com/go-delve/delve/cmd/dlv
 go get -u github.com/rakyll/hey
 
 # install air
-go install github.com/cosmtrek/air@latest
+go get -u -v github.com/air-verse/air
 echo "Installed Air for live reloading"
 
 # vscode-go dependencies 
