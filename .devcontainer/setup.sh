@@ -23,6 +23,10 @@ go get -u golang.org/x/tools/gopls
 go get -u github.com/go-delve/delve/cmd/dlv
 go get -u github.com/rakyll/hey
 
+# install air
+echo "Installing Air for live reloading"
+go install github.com/cosmtrek/air@latest
+
 # vscode-go dependencies 
 echo "Getting dependencies for the vscode-go plugin "
 # via: https://github.com/microsoft/vscode-go/blob/master/.travis.yml
