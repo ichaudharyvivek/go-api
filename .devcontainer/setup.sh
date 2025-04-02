@@ -19,6 +19,7 @@ echo "Go version ${INSTALLED_GO_VERSION} is installed"
 
 # install direnv
 curl -sfL https://direnv.net/install.sh | bash
+echo "Installed direnv for configurations"
 
 # install gopls, dlv, hey
 echo "Getting development tools"
@@ -27,8 +28,8 @@ go get -u github.com/go-delve/delve/cmd/dlv
 go get -u github.com/rakyll/hey
 
 # install air
-echo "Installing Air for live reloading"
 go install github.com/cosmtrek/air@latest
+echo "Installed Air for live reloading"
 
 # vscode-go dependencies 
 echo "Getting dependencies for the vscode-go plugin "

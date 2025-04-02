@@ -3,12 +3,6 @@
     "dockerFile": "Dockerfile",
     "customizations": {
         "vscode": {
-            "settings": {
-                "files.exclude": {
-                    "**/CODE_OF_CONDUCT.md": true,
-                    "**/LICENSE": true
-                }
-            },
             "extensions": [
                 "coenraads.bracket-pair-colorizer-2",
                 "eamodio.gitlens",
