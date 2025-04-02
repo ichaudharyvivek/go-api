@@ -17,6 +17,9 @@ rm go$VERSION.$OS-$ARCH.tar.gz
 INSTALLED_GO_VERSION=$(go version)
 echo "Go version ${INSTALLED_GO_VERSION} is installed"
 
+# install direnv
+curl -sfL https://direnv.net/install.sh | bash
+
 # install gopls, dlv, hey
 echo "Getting development tools"
 go get -u golang.org/x/tools/gopls
