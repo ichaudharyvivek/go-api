@@ -8,6 +8,8 @@ services:
       - ./cmd:/app/cmd
       - ./config:/app/config
       - ./migrations:/app/migrations
+      - ./mock:/app/mock
+      - ./utils:/app/utils
     ports:
       - "8080:8080"
     depends_on:
