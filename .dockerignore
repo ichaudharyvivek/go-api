@@ -1,12 +1,37 @@
-.git
-.gitignore
-.idea
-.vscode
-.github
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of go build
+/build/
+/bin/
+/dist/
+
+# Dependency directories (if using vendoring)
+/vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Logs and debug
+*.log
+
+# OS-specific files
 .DS_Store
-doc
-README.md
-LICENSE
-compose.yml
-.swagger
-bin/**
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*
