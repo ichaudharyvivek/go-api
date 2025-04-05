@@ -29,7 +29,6 @@ type ConfDB struct {
 	Debug    bool   `env:"DB_DEBUG,required"`
 }
 
-// Initializin
 func New() *Conf {
 	var c Conf
 	if err := envdecode.Decode(&c); err != nil {

@@ -6,12 +6,32 @@ import (
 	"net/http"
 
 	"example.com/goapi/internal/config"
-	handler "example.com/goapi/internal/handler/http"
+	router "example.com/goapi/internal/router"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 )
+
+const fmtDBString = "host=%s user=%s password=%s dbname=%s port=%d sslmode=disable"
 
 func main() {
 	c := config.New()
-	r := handler.NewRouter()
+
+	var logLevel gormlogger.LogLevel
+	if c.DB.Debug {
+		logLevel = gormlogger.Info
+	} else {
+		logLevel = gormlogger.Error
+	}
+
+	dbString := fmt.Sprintf(fmtDBString, c.DB.Host, c.DB.Username, c.DB.Password, c.DB.DBName, c.DB.Port)
+	db, err := gorm.Open(postgres.Open(dbString), &gorm.Config{Logger: gormlogger.Default.LogMode(logLevel)})
+	if err != nil {
+		log.Fatal("DB connection start failure")
+		return
+	}
+
+	r := router.NewRouter(db)
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", c.Server.Port),
 		Handler:      r,

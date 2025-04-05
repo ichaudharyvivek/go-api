@@ -14,15 +14,14 @@ func NewHealthHandler() *HealthHandler {
 }
 
 func (h *HealthHandler) RegisterRoutes(r chi.Router) {
-	r.Get("/health", h.Get)
+	r.Get("/health", h.Read)
 }
 
-func (h *HealthHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (h *HealthHandler) Read(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
 	json.NewEncoder(w).Encode(map[string]any{
 		"success": true,
-		"msg":     "Services are running",
+		"msg":     "Services are running!",
 	})
 }
