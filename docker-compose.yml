@@ -1,0 +1,11 @@
+services:
+
+  app:
+    build: .
+    image: go-api-app
+    env_file: .env
+    volumes:
+      - ./cmd:/app/cmd
+      - ./internal:/app/internal
+    ports:
+      - "8080:8080"
