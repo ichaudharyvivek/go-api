@@ -20,7 +20,7 @@ func NewPostHandler(db *gorm.DB) *PostHandler {
 }
 
 func (h *PostHandler) RegisterRoutes(r chi.Router) {
-	r.Route("/posts", func(r chi.Router) {
+	r.Route("/post", func(r chi.Router) {
 		r.Get("/", h.List)
 		r.Post("/", h.Create)
 		r.Get("/{id}", h.Read)

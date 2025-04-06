@@ -60,9 +60,9 @@ func (p *Post) ToDto() *DTO {
 }
 
 // ToDto converts a collection of Post models into a slice of DTOs
-func (ps Posts) ToDto() []*DTO {
-	dtos := make([]*DTO, len(ps))
-	for i, v := range ps {
+func (items Posts) ToDto() []*DTO {
+	dtos := make([]*DTO, len(items))
+	for i, v := range items {
 		dtos[i] = v.ToDto()
 	}
 	return dtos
