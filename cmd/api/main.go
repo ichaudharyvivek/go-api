@@ -25,6 +25,6 @@ func main() {
 
 	log.Println("Starting server at port " + s.Addr)
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal("Server startup failed!")
+		log.Fatal("Server startup failed!!")
 	}
 }
