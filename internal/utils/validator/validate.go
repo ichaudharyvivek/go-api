@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
@@ -28,4 +29,35 @@ func New() *validator.Validate {
 func isAlphaSpace(fl validator.FieldLevel) bool {
 	reg := regexp.MustCompile(alphaSpaceRegexString)
 	return reg.MatchString(fl.Field().String())
+}
+
+func ToErrResponse(err error) []string {
+	if fieldErrors, ok := err.(validator.ValidationErrors); ok {
+		resp := make([]string, len(fieldErrors))
+
+		for i, err := range fieldErrors {
+			switch err.Tag() {
+			case "required":
+				resp[i] = fmt.Sprintf("%s is a required field", err.Field())
+			case "max":
+				resp[i] = fmt.Sprintf("%s must be a maximum of %s in length", err.Field(), err.Param())
+			case "url":
+				resp[i] = fmt.Sprintf("%s must be a valid URL", err.Field())
+			case "alphaspace":
+				resp[i] = fmt.Sprintf("%s can only contain alphabetic and space characters", err.Field())
+			case "datetime":
+				if err.Param() == "2006-01-02" {
+					resp[i] = fmt.Sprintf("%s must be a valid date", err.Field())
+				} else {
+					resp[i] = fmt.Sprintf("%s must follow %s format", err.Field(), err.Param())
+				}
+			default:
+				resp[i] = fmt.Sprintf("something wrong on %s; %s", err.Field(), err.Tag())
+			}
+		}
+
+		return resp
+	}
+
+	return nil
 }

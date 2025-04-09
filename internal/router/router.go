@@ -27,8 +27,8 @@ func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
 
 		postRepo := postRepo.NewRepository(db)
 		postService := post.NewService(postRepo)
-		postHandler := v1.NewHandler(postService)
-		postHandler.RegisterRoutes(r, v)
+		postHandler := v1.NewHandler(postService, v)
+		postHandler.RegisterRoutes(r)
 	})
 
 	return r

@@ -1,13 +1,5 @@
 package err
 
-type Error struct {
-	Error string `json:"error"`
-}
-
-type Errors struct {
-	Errors []string `json:"errors"`
-}
-
 var (
 	RespDBDataInsertFailure = "db data insert failure"
 	RespDBDataAccessFailure = "db data access failure"
