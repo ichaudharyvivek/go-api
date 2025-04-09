@@ -5,14 +5,15 @@ import (
 	"time"
 
 	"example.com/goapi/internal/domain/post"
-	x "example.com/goapi/internal/handler/v1"
+	v1 "example.com/goapi/internal/handler/v1"
 	postRepo "example.com/goapi/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
-func NewRouter(db *gorm.DB) http.Handler {
+func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -26,8 +27,8 @@ func NewRouter(db *gorm.DB) http.Handler {
 
 		postRepo := postRepo.NewRepository(db)
 		postService := post.NewService(postRepo)
-		postHandler := x.NewHandler(postService)
-		postHandler.RegisterRoutes(r)
+		postHandler := v1.NewHandler(postService)
+		postHandler.RegisterRoutes(r, v)
 	})
 
 	return r
