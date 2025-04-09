@@ -25,7 +25,7 @@ func NewHandler(s post.Service, v *validator.Validate) *Handler {
 // RegisterRoutes mounts the post routes on the given router
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Route("/post", func(r chi.Router) {
-		r.Get("/", h.GetAll)
+		r.Get("/", h.FindAll)
 		r.Post("/", h.Create)
 	})
 }
@@ -53,8 +53,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	httpx.Created(w, post)
 }
 
-// GetAll handles GET /posts
-func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
+// FindAll handles GET /posts
+func (h *Handler) FindAll(w http.ResponseWriter, r *http.Request) {
 	posts, err := h.service.FindAll(r.Context())
 	if err != nil {
 		httpx.Error(w, http.StatusInternalServerError, fmt.Sprintf("Error: %s", err))
