@@ -22,7 +22,7 @@ func NewHandler(s post.Service) *Handler {
 
 // RegisterRoutes mounts the post routes on the given router
 func (h *Handler) RegisterRoutes(r chi.Router, v *validator.Validate) {
-	r.Route("/posts", func(r chi.Router) {
+	r.Route("/post", func(r chi.Router) {
 		r.Get("/", h.GetAll)
 		r.Post("/", h.Create)
 	})
