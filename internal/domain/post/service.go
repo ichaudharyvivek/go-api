@@ -10,7 +10,7 @@ import (
 // This is what the business layer of Posts is capable off
 type Service interface {
 	Create(ctx context.Context, input Form) (*Post, error)
-	GetAll(ctx context.Context) (Posts, error)
+	FindAll(ctx context.Context) (Posts, error)
 }
 
 type service struct {
@@ -29,7 +29,7 @@ func (s *service) Create(ctx context.Context, input Form) (*Post, error) {
 	p := input.ToModel()
 	p.ID = uuid.New()
 
-	err := s.repo.Save(ctx, p)
+	err := s.repo.Create(ctx, p)
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +37,6 @@ func (s *service) Create(ctx context.Context, input Form) (*Post, error) {
 	return p, nil
 }
 
-func (s *service) GetAll(ctx context.Context) (Posts, error) {
+func (s *service) FindAll(ctx context.Context) (Posts, error) {
 	return s.repo.FindAll(ctx)
 }

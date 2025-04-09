@@ -20,8 +20,9 @@ func NewRepository(db *gorm.DB) *PostRepository {
 	return &PostRepository{db: db}
 }
 
-func (r *PostRepository) Save(ctx context.Context, p *post.Post) error {
+func (r *PostRepository) Create(ctx context.Context, p *post.Post) error {
 	return r.db.WithContext(ctx).Create(p).Error
+
 }
 
 func (r *PostRepository) FindAll(ctx context.Context) (post.Posts, error) {
