@@ -55,7 +55,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // GetAll handles GET /posts
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.service.GetAll(r.Context())
+	posts, err := h.service.FindAll(r.Context())
 	if err != nil {
 		httpx.Error(w, http.StatusInternalServerError, fmt.Sprintf("Error: %s", err))
 		return
