@@ -27,8 +27,8 @@ func NewHandler(s post.Service, v *validator.Validate) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Route("/post", func(r chi.Router) {
 		r.Get("/", h.FindAll)
-		r.Get("/{id}", h.FindById)
 		r.Post("/", h.Create)
+		r.Get("/{id}", h.FindById)
 	})
 }
 
