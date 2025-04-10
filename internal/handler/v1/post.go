@@ -11,6 +11,7 @@ import (
 	"example.com/goapi/pkg/httpx"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 )
 
 type Handler struct {
@@ -26,14 +27,15 @@ func NewHandler(s post.Service, v *validator.Validate) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Route("/post", func(r chi.Router) {
 		r.Get("/", h.FindAll)
+		r.Get("/{id}", h.FindById)
 		r.Post("/", h.Create)
 	})
 }
 
 // Create handles POST /posts
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	var input post.Form
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+	var input = &post.Form{}
+	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
 		httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
 		return
 	}
@@ -62,4 +64,20 @@ func (h *Handler) FindAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.Ok(w, posts.ToDto())
+}
+
+func (h *Handler) FindById(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		return
+	}
+
+	post, err := h.service.FindById(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, e.RespDBDataAccessFailure)
+		return
+	}
+
+	httpx.Ok(w, post.ToDto())
 }

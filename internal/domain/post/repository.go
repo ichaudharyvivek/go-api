@@ -1,9 +1,16 @@
 package post
 
-import "context"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 // Repository defines the data access methods for Posts.
 type Repository interface {
-	FindAll(ctx context.Context) (Posts, error)
 	Create(ctx context.Context, p *Post) error
+	FindAll(ctx context.Context) (Posts, error)
+	FindById(ctx context.Context, id uuid.UUID) (*Post, error)
+	UpdateById(ctx context.Context, id uuid.UUID) error
+	DeleteById(ctx context.Context, id uuid.UUID) error
 }

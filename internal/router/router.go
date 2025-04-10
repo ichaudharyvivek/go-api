@@ -22,14 +22,15 @@ func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
 	r.Use(middleware.Timeout(15 * time.Second))
 
 	r.Route("/api/v1", func(r chi.Router) {
-		// healthHandler := health.NewHealthHandler()
-		// healthHandler.RegisterRoutes(r)
-
-		postRepo := postRepo.NewRepository(db)
-		postService := post.NewService(postRepo)
-		postHandler := v1.NewHandler(postService, v)
-		postHandler.RegisterRoutes(r)
+		registerPostRoutes(r, db, v)
 	})
 
 	return r
+}
+
+func registerPostRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
+	repo := postRepo.NewRepository(db)
+	service := post.NewService(repo)
+	handler := v1.NewHandler(service, v)
+	handler.RegisterRoutes(r)
 }
