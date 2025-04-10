@@ -15,7 +15,7 @@ type Post struct {
 	Author    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 // Posts represents a collection of posts

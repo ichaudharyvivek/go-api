@@ -11,6 +11,6 @@ type Repository interface {
 	Create(ctx context.Context, p *Post) error
 	FindAll(ctx context.Context) (Posts, error)
 	FindById(ctx context.Context, id uuid.UUID) (*Post, error)
-	UpdateById(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, input *Post) (*Post, error)
 	DeleteById(ctx context.Context, id uuid.UUID) error
 }

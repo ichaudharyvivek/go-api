@@ -29,6 +29,8 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 		r.Get("/", h.FindAll)
 		r.Post("/", h.Create)
 		r.Get("/{id}", h.FindById)
+		r.Put("/{id}", h.Update)
+		r.Delete("/{id}", h.DeleteById)
 	})
 }
 
@@ -80,4 +82,45 @@ func (h *Handler) FindById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.Ok(w, post.ToDto())
+}
+
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		return
+	}
+
+	input := &post.Form{}
+	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
+		httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
+		return
+	}
+
+	post := input.ToModel()
+	post.ID = id
+
+	created, err := h.service.Update(r.Context(), post)
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
+		return
+	}
+
+	httpx.Ok(w, created.ToDto())
+}
+
+func (h *Handler) DeleteById(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		return
+	}
+
+	err = h.service.DeleteById(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, e.RespDBDataRemoveFailure)
+		return
+	}
+
+	httpx.Ok(w, fmt.Sprintf("Deleted Post with id `%s`", id))
 }

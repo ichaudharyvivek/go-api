@@ -11,7 +11,7 @@ import (
 type Service interface {
 	Create(ctx context.Context, input *Form) (*Post, error)
 	FindAll(ctx context.Context) (Posts, error)
-	Update(ctx context.Context, input *Form) error
+	Update(ctx context.Context, input *Post) (*Post, error)
 	FindById(ctx context.Context, id uuid.UUID) (*Post, error)
 	DeleteById(ctx context.Context, id uuid.UUID) error
 }
@@ -53,10 +53,15 @@ func (s *service) FindById(ctx context.Context, id uuid.UUID) (*Post, error) {
 	return post, nil
 }
 
-func (s *service) Update(ctx context.Context, input *Form) error {
-	return nil
+func (s *service) Update(ctx context.Context, input *Post) (*Post, error) {
+	updated, err := s.repo.Update(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return updated, nil
 }
 
 func (s *service) DeleteById(ctx context.Context, id uuid.UUID) error {
-	return nil
+	return s.repo.DeleteById(ctx, id)
 }

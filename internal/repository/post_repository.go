@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"example.com/goapi/internal/domain/post"
 	"github.com/google/uuid"
@@ -36,10 +37,25 @@ func (r *PostRepository) FindById(ctx context.Context, id uuid.UUID) (*post.Post
 	return post, nil
 }
 
-func (r *PostRepository) UpdateById(ctx context.Context, id uuid.UUID) error {
-	return nil
+func (r *PostRepository) Update(ctx context.Context, input *post.Post) (*post.Post, error) {
+	var ep *post.Post
+	if err := r.db.WithContext(ctx).First(&ep, "id = ?", input.ID).Error; err != nil {
+		return nil, err
+	}
+
+	result := r.db.WithContext(ctx).Model(&post.Post{}).Select("Title", "Content", "Author", "CreatedAt", "UpdatedAt").Where("id = ?", input.ID)
+	if result.RowsAffected > 0 {
+		return input, nil
+	}
+
+	return nil, errors.New("post not found or no changes made")
 }
 
 func (r *PostRepository) DeleteById(ctx context.Context, id uuid.UUID) error {
-	return nil
+	result := r.db.Where("id = ?", id).Delete(&post.Post{})
+	if result.RowsAffected > 0 {
+		return nil
+	}
+
+	return result.Error
 }
