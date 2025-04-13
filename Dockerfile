@@ -2,9 +2,9 @@ FROM golang:alpine
 
 WORKDIR /app
 
-COPY . .
-
 RUN go install github.com/air-verse/air@latest
+
+COPY . .
 
 RUN go build -o ./bin/api ./cmd/api
 

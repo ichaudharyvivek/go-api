@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	e "example.com/goapi/internal/common/err"
+	// e "example.com/goapi/internal/common/err"
 	"example.com/goapi/internal/domain/post"
-	_v "example.com/goapi/internal/utils/validator"
 	"example.com/goapi/pkg/httpx"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
@@ -25,7 +24,7 @@ func NewHandler(s post.Service, v *validator.Validate) *Handler {
 
 // RegisterRoutes mounts the post routes on the given router
 func (h *Handler) RegisterRoutes(r chi.Router) {
-	r.Route("/post", func(r chi.Router) {
+	r.Route("/posts", func(r chi.Router) {
 		r.Get("/", h.FindAll)
 		r.Post("/", h.Create)
 		r.Get("/{id}", h.FindById)
@@ -38,19 +37,19 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var input = &post.Form{}
 	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
-		httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
+		// httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
 		return
 	}
 
 	if err := h.validator.Struct(input); err != nil {
-		respBody := _v.ToErrResponse(err)
-		httpx.Errors(w, http.StatusUnprocessableEntity, respBody)
+		// respBody := _v.ToErrResponse(err)
+		// httpx.Errors(w, http.StatusUnprocessableEntity, respBody)
 		return
 	}
 
 	post, err := h.service.Create(r.Context(), input)
 	if err != nil {
-		httpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
+		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
 		return
 	}
 
@@ -61,7 +60,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) FindAll(w http.ResponseWriter, r *http.Request) {
 	posts, err := h.service.FindAll(r.Context())
 	if err != nil {
-		httpx.Error(w, http.StatusInternalServerError, fmt.Sprintf("Error: %s", err))
+		// httpx.Error(w, http.StatusInternalServerError, fmt.Sprintf("Error: %s", err))
 		return
 	}
 
@@ -71,13 +70,13 @@ func (h *Handler) FindAll(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) FindById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
 		return
 	}
 
 	post, err := h.service.FindById(r.Context(), id)
 	if err != nil {
-		httpx.Error(w, http.StatusInternalServerError, e.RespDBDataAccessFailure)
+		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataAccessFailure)
 		return
 	}
 
@@ -87,13 +86,13 @@ func (h *Handler) FindById(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
 		return
 	}
 
 	input := &post.Form{}
 	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
-		httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
+		// httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
 		return
 	}
 
@@ -102,7 +101,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	created, err := h.service.Update(r.Context(), post)
 	if err != nil {
-		httpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
+		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
 		return
 	}
 
@@ -112,13 +111,13 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) DeleteById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
 		return
 	}
 
 	err = h.service.DeleteById(r.Context(), id)
 	if err != nil {
-		httpx.Error(w, http.StatusInternalServerError, e.RespDBDataRemoveFailure)
+		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataRemoveFailure)
 		return
 	}
 

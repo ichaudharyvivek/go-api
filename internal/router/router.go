@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"example.com/goapi/internal/domain/post"
+	"example.com/goapi/internal/domain/user"
 	v1 "example.com/goapi/internal/handler/v1"
-	postRepo "example.com/goapi/internal/repository"
+	"example.com/goapi/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-playground/validator/v10"
@@ -23,14 +24,22 @@ func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
 
 	r.Route("/api/v1", func(r chi.Router) {
 		registerPostRoutes(r, db, v)
+		registerUserRoutes(r, db, v)
 	})
 
 	return r
 }
 
 func registerPostRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
-	repo := postRepo.NewRepository(db)
+	repo := repository.NewRepository(db)
 	service := post.NewService(repo)
 	handler := v1.NewHandler(service, v)
 	handler.RegisterRoutes(r)
+}
+
+func registerUserRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
+	repo := repository.NewUserRepository(db)
+	service := user.NewService(repo)
+	handler := v1.NewUserHandler(service, v)
+	handler.RegisterUserRoutes(r)
 }
