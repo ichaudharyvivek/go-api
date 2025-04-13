@@ -29,13 +29,17 @@ func (s *service) List(ctx context.Context) (Users, error) {
 }
 
 func (s *service) Create(ctx context.Context, form *Form) (*User, error) {
-	u := form.ToModel()
-	err := s.repo.Create(ctx, u)
+	user, err := form.ToModel()
+	if err != nil {
+		return nil, errors.New(errors.ErrInternalServer, errors.PasswordHashingFailed, err)
+	}
+
+	err = s.repo.Create(ctx, user)
 	if err != nil {
 		return nil, errors.New(errors.ErrDBInsertFailure, errors.DBDataInsertFailure, err)
 	}
 
-	return u, nil
+	return user, nil
 }
 
 func (s *service) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {

@@ -3,8 +3,9 @@ package errors
 // Static error messages
 var (
 	// General error(s)
-	SomethingWentWrong  = "something went wrong"
-	InternalServerError = "internal server error"
+	SomethingWentWrong    = "something went wrong"
+	InternalServerError   = "internal server error"
+	PasswordHashingFailed = "password hashing failed"
 
 	// DB errors
 	DBDataInsertFailure = "db data insert failure"

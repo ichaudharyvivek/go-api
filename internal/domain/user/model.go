@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User represents the database model for a user.
@@ -36,13 +37,18 @@ type Form struct {
 }
 
 // ToModel converts a form to user model
-func (f *Form) ToModel() *User {
+func (f *Form) ToModel() (*User, error) {
+	hash, err := HashPassword(f.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	return &User{
 		ID:       uuid.New(),
 		Username: f.Username,
 		Email:    f.Email,
-		Password: []byte(f.Password),
-	}
+		Password: hash,
+	}, nil
 }
 
 // ToDto converts a User model to a DTO
@@ -64,4 +70,13 @@ func (list Users) ToDto() []*DTO {
 	}
 
 	return dtos
+}
+
+func hashPassword(text string) ([]byte, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(text), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	return hash, nil
 }
