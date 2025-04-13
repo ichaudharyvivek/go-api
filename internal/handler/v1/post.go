@@ -49,7 +49,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	post, err := h.service.Create(r.Context(), input)
 	if err != nil {
-		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
+		// htpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
 		return
 	}
 

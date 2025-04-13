@@ -3,13 +3,14 @@ package user
 import (
 	"context"
 
+	"example.com/goapi/internal/common/errors"
 	"github.com/google/uuid"
 )
 
 // This is what the business layer of Users is capable off
 type Service interface {
 	List(ctx context.Context) (Users, error)
-	Create(ctx context.Context, user *User) error
+	Create(ctx context.Context, form *Form) (*User, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*User, error)
 	Update(ctx context.Context, user *User) (*User, error)
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -24,21 +25,41 @@ func NewService(r Repository) Service {
 }
 
 func (s *service) List(ctx context.Context) (Users, error) {
-	return nil, nil
+	return s.repo.List(ctx)
 }
 
-func (s *service) Create(ctx context.Context, user *User) error {
-	return nil
+func (s *service) Create(ctx context.Context, form *Form) (*User, error) {
+	u := form.ToModel()
+	err := s.repo.Create(ctx, u)
+	if err != nil {
+		return nil, errors.New(errors.ErrDBInsertFailure, errors.DBDataInsertFailure, err)
+	}
+
+	return u, nil
 }
 
 func (s *service) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
-	return nil, nil
+	user, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, errors.New(errors.ErrDBAccessFailure, errors.DBDataAccessFailure, err)
+	}
+
+	return user, nil
 }
 
 func (s *service) Update(ctx context.Context, user *User) (*User, error) {
-	return nil, nil
+	user, err := s.repo.Update(ctx, user)
+	if err != nil {
+		return nil, errors.New(errors.ErrDBUpdateFailure, errors.DBDataUpdateFailure, err)
+	}
+
+	return user, nil
 }
 
 func (s *service) Delete(ctx context.Context, id uuid.UUID) error {
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return errors.New(errors.ErrDBDeleteFailure, errors.DBDataRemoveFailure, err)
+	}
+
 	return nil
 }

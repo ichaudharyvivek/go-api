@@ -23,10 +23,10 @@ func New(code, message string, err error) *ApiError {
 // ApiError implements the 'error' interface.
 func (e *ApiError) Error() string {
 	if e.Err != nil {
-		return fmt.Sprintf("%s: %s: %v", e.Code, e.Message, e.Err)
+		return fmt.Sprintf("[%s] %s: %v", e.Code, e.Message, e.Err)
 	}
 
-	return fmt.Sprintf("%s: %s", e.Code, e.Message)
+	return fmt.Sprintf("[%s]: %s", e.Code, e.Message)
 }
 
 // Unwrap returns the underlying error.

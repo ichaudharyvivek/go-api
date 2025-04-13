@@ -37,7 +37,7 @@ func Created(w http.ResponseWriter, data any) error {
 }
 
 // Error writes a single error message
-func Error(w http.ResponseWriter, status int, msg string) {
+func Error(w http.ResponseWriter, msg string, status int) {
 	respondJSON(w, status, APIResponse{
 		Success: false,
 		Error:   msg,
@@ -45,7 +45,7 @@ func Error(w http.ResponseWriter, status int, msg string) {
 }
 
 // Writes a list of multiple errors
-func Errors(w http.ResponseWriter, status int, errs []string) {
+func Errors(w http.ResponseWriter, errs []string, status int) {
 	respondJSON(w, status, APIResponse{
 		Success: false,
 		Errors:  errs,

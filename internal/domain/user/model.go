@@ -52,7 +52,7 @@ func (u *User) ToDto() *DTO {
 		Username:  u.Username,
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt: u.UpdatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: u.CreatedAt.Format("2006-01-02 15:04:05"),
 	}
 }
 

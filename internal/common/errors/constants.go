@@ -8,6 +8,7 @@ const (
 	// Database errors
 	ErrDBInsertFailure     = "DB_INSERT_FAILURE"
 	ErrDBUpdateFailure     = "DB_UPDATE_FAILURE"
+	ErrDBAccessFailure     = "DB_ACCESS_FAILURE"
 	ErrDBDeleteFailure     = "DB_DELETE_FAILURE"
 	ErrDBQueryFailure      = "DB_QUERY_FAILURE"
 	ErrDBTxBeginFailure    = "DB_TX_BEGIN_FAILURE"

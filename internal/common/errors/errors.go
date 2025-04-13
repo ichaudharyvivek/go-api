@@ -1,19 +1,28 @@
 package errors
 
-// Ideally this will include the formatted error strings
+// Static error messages
 var (
-	RespDBDataInsertFailure = "db data insert failure"
-	RespDBDataAccessFailure = "db data access failure"
-	RespDBDataUpdateFailure = "db data update failure"
-	RespDBDataRemoveFailure = "db data remove failure"
+	// General error(s)
+	SomethingWentWrong  = "something went wrong"
+	InternalServerError = "internal server error"
 
-	RespJSONEncodeFailure = "json encode failure"
-	RespJSONDecodeFailure = "json decode failure"
+	// DB errors
+	DBDataInsertFailure = "db data insert failure"
+	DBDataAccessFailure = "db data access failure"
+	DBDataUpdateFailure = "db data update failure"
+	DBDataRemoveFailure = "db data remove failure"
 
-	RespInvalidURLParamID = "invalid url param-id"
+	// Json errors
+	JSONEncodeFailure = "json encode failure"
+	JSONDecodeFailure = "json decode failure"
+
+	// Request errors
+	InvalidURLParamID = "invalid url param- id"
 )
 
+// Formatted error messages
 var (
-	ResourceNotFound = "Resource '%s' not found"
+	// Resource erros
+	ResourceNotFound = "resource '%s' not found"
 	UserNotFound     = "user with id: '%s' not found"
 )
