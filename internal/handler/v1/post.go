@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	// e "example.com/goapi/internal/common/err"
+	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/post"
+	_v "example.com/goapi/internal/utils/validator"
 	"example.com/goapi/pkg/httpx"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
@@ -37,7 +38,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
 	posts, err := h.service.FindAll(r.Context())
 	if err != nil {
-		// httpx.Error(w, http.StatusInternalServerError, fmt.Sprintf("Error: %s", err))
+		httpx.Error(w, fmt.Sprintf("Error: %s", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -48,19 +49,19 @@ func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var input = &post.Form{}
 	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
-		// httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
+		httpx.Error(w, errors.JSONDecodeFailure, http.StatusBadRequest)
 		return
 	}
 
 	if err := h.validator.Struct(input); err != nil {
-		// respBody := _v.ToErrResponse(err)
-		// httpx.Errors(w, http.StatusUnprocessableEntity, respBody)
+		respBody := _v.ToErrResponse(err)
+		httpx.Errors(w, respBody, http.StatusUnprocessableEntity)
 		return
 	}
 
 	post, err := h.service.Create(r.Context(), input)
 	if err != nil {
-		// htpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
+		httpx.Error(w, errors.DBDataInsertFailure, http.StatusInternalServerError)
 		return
 	}
 
@@ -70,13 +71,13 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		httpx.Error(w, errors.InvalidURLParamID, http.StatusBadRequest)
 		return
 	}
 
 	post, err := h.service.FindById(r.Context(), id)
 	if err != nil {
-		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataAccessFailure)
+		httpx.Error(w, errors.DBDataAccessFailure, http.StatusInternalServerError)
 		return
 	}
 
@@ -86,13 +87,13 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		httpx.Error(w, errors.InvalidURLParamID, http.StatusBadRequest)
 		return
 	}
 
 	input := &post.Form{}
 	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
-		// httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
+		httpx.Error(w, errors.JSONDecodeFailure, http.StatusBadRequest)
 		return
 	}
 
@@ -101,7 +102,7 @@ func (h *Handler) UpdatePostById(w http.ResponseWriter, r *http.Request) {
 
 	created, err := h.service.Update(r.Context(), post)
 	if err != nil {
-		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataInsertFailure)
+		httpx.Error(w, errors.DBDataInsertFailure, http.StatusInternalServerError)
 		return
 	}
 
@@ -111,13 +112,13 @@ func (h *Handler) UpdatePostById(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) DeletePostBy(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
-		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
+		httpx.Error(w, errors.InvalidURLParamID, http.StatusBadRequest)
 		return
 	}
 
 	err = h.service.DeleteById(r.Context(), id)
 	if err != nil {
-		// httpx.Error(w, http.StatusInternalServerError, e.RespDBDataRemoveFailure)
+		httpx.Error(w, errors.DBDataRemoveFailure, http.StatusInternalServerError)
 		return
 	}
 
