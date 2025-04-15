@@ -30,8 +30,6 @@ func (s *service) Create(ctx context.Context, input *Form) (*Post, error) {
 	}
 
 	p := input.ToModel()
-	p.ID = uuid.New()
-
 	err := s.repo.Create(ctx, p)
 	if err != nil {
 		return nil, err

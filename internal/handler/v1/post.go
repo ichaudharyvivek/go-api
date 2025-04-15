@@ -65,7 +65,7 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.Created(w, post)
+	httpx.Created(w, post.ToDto())
 }
 
 func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
