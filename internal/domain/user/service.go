@@ -36,7 +36,7 @@ func (s *service) Create(ctx context.Context, form *Form) (*User, error) {
 
 	err = s.repo.Create(ctx, user)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBInsertFailure, errors.DBDataInsertFailure, err)
+		return nil, err
 	}
 
 	return user, nil
@@ -45,7 +45,7 @@ func (s *service) Create(ctx context.Context, form *Form) (*User, error) {
 func (s *service) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 	user, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBAccessFailure, errors.DBDataAccessFailure, err)
+		return nil, err
 	}
 
 	return user, nil
@@ -54,7 +54,7 @@ func (s *service) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 func (s *service) Update(ctx context.Context, user *User) (*User, error) {
 	user, err := s.repo.Update(ctx, user)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBUpdateFailure, errors.DBDataUpdateFailure, err)
+		return nil, err
 	}
 
 	return user, nil

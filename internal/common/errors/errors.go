@@ -25,5 +25,5 @@ var (
 var (
 	// Resource erros
 	ResourceNotFound = "resource '%s' not found"
-	UserNotFound     = "user with id: '%s' not found"
+	UserNotFound     = "user with id '%s' not found"
 )

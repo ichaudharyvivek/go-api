@@ -34,7 +34,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*user.User,
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ErrUserNotFound, fmt.Sprintf(errors.UserNotFound, id), err)
 		}
-		return nil, errors.New(errors.ErrInternalServer, "somthing went wrong", err)
+		return nil, errors.New(errors.ErrInternalServer, "something went wrong", err)
 	}
 
 	return user, nil
@@ -45,7 +45,7 @@ func (r *UserRepository) Update(ctx context.Context, user *user.User) (*user.Use
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New(errors.ErrUserNotFound, fmt.Sprintf(errors.UserNotFound, user.ID), err)
 		}
-		return nil, errors.New(errors.ErrInternalServer, "somthing went wrong", err)
+		return nil, errors.New(errors.ErrInternalServer, "something went wrong", err)
 	}
 
 	return user, nil

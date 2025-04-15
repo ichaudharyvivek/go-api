@@ -30,7 +30,7 @@ func (h *UserHandler) RegisterUserRoutes(r chi.Router) {
 		r.Post("/", h.CreateUser)
 		r.Get("/{id}", h.GetUserById)
 		r.Put("/{id}", h.UpdateUserById)
-		r.Delete("/{id}", h.DeleteuserById)
+		r.Delete("/{id}", h.DeleteUserById)
 	})
 }
 
@@ -99,6 +99,6 @@ func (h *UserHandler) UpdateUserById(w http.ResponseWriter, r *http.Request) {
 	httpx.Ok(w, "UpdateUserById handler")
 }
 
-func (h *UserHandler) DeleteuserById(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	httpx.Ok(w, "DeleteuserById handler")
 }
