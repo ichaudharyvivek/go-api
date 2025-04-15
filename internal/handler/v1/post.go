@@ -25,16 +25,27 @@ func NewHandler(s post.Service, v *validator.Validate) *Handler {
 // RegisterRoutes mounts the post routes on the given router
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Route("/posts", func(r chi.Router) {
-		r.Get("/", h.FindAll)
-		r.Post("/", h.Create)
-		r.Get("/{id}", h.FindById)
-		r.Put("/{id}", h.Update)
-		r.Delete("/{id}", h.DeleteById)
+		r.Get("/", h.ListAllPosts)
+		r.Post("/", h.CreatePost)
+		r.Get("/{id}", h.GetPostById)
+		r.Put("/{id}", h.UpdatePostById)
+		r.Delete("/{id}", h.DeletePostBy)
 	})
 }
 
-// Create handles POST /posts
-func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+// ListAllPosts handles GET /posts
+func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
+	posts, err := h.service.FindAll(r.Context())
+	if err != nil {
+		// httpx.Error(w, http.StatusInternalServerError, fmt.Sprintf("Error: %s", err))
+		return
+	}
+
+	httpx.Ok(w, posts.ToDto())
+}
+
+// CreatePost handles POST /posts
+func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var input = &post.Form{}
 	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
 		// httpx.Error(w, http.StatusBadRequest, e.RespJSONDecodeFailure)
@@ -56,18 +67,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	httpx.Created(w, post)
 }
 
-// FindAll handles GET /posts
-func (h *Handler) FindAll(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.service.FindAll(r.Context())
-	if err != nil {
-		// httpx.Error(w, http.StatusInternalServerError, fmt.Sprintf("Error: %s", err))
-		return
-	}
-
-	httpx.Ok(w, posts.ToDto())
-}
-
-func (h *Handler) FindById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
@@ -83,7 +83,7 @@ func (h *Handler) FindById(w http.ResponseWriter, r *http.Request) {
 	httpx.Ok(w, post.ToDto())
 }
 
-func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)
@@ -108,7 +108,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	httpx.Ok(w, created.ToDto())
 }
 
-func (h *Handler) DeleteById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeletePostBy(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		// httpx.Error(w, http.StatusBadRequest, e.RespInvalidURLParamID)

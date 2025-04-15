@@ -96,9 +96,11 @@ func (h *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) UpdateUserById(w http.ResponseWriter, r *http.Request) {
+	// TODO: Add Update route
 	httpx.Ok(w, "UpdateUserById handler")
 }
 
 func (h *UserHandler) DeleteUserById(w http.ResponseWriter, r *http.Request) {
-	httpx.Ok(w, "DeleteuserById handler")
+	// TODO: Add Delete route
+	httpx.Ok(w, "DeleteUserById handler")
 }

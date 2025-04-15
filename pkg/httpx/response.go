@@ -14,7 +14,7 @@ type APIResponse struct {
 }
 
 // WriteJSON writes a fully customized APIResponse
-func respondJSON(w http.ResponseWriter, status int, payload APIResponse) error {
+func respondJSON(w http.ResponseWriter, payload APIResponse, status int) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(payload)
@@ -22,32 +22,32 @@ func respondJSON(w http.ResponseWriter, status int, payload APIResponse) error {
 
 // Success returns 200 OK with data
 func Ok(w http.ResponseWriter, data any) error {
-	return respondJSON(w, http.StatusOK, APIResponse{
+	return respondJSON(w, APIResponse{
 		Success: true,
 		Data:    data,
-	})
+	}, http.StatusOK)
 }
 
 // Created writes a success response with data and `201` status
 func Created(w http.ResponseWriter, data any) error {
-	return respondJSON(w, http.StatusCreated, APIResponse{
+	return respondJSON(w, APIResponse{
 		Success: true,
 		Data:    data,
-	})
+	}, http.StatusCreated)
 }
 
 // Error writes a single error message
 func Error(w http.ResponseWriter, msg string, status int) {
-	respondJSON(w, status, APIResponse{
+	respondJSON(w, APIResponse{
 		Success: false,
 		Error:   msg,
-	})
+	}, status)
 }
 
 // Writes a list of multiple errors
 func Errors(w http.ResponseWriter, errs []string, status int) {
-	respondJSON(w, status, APIResponse{
+	respondJSON(w, APIResponse{
 		Success: false,
 		Errors:  errs,
-	})
+	}, status)
 }
