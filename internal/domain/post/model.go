@@ -17,6 +17,7 @@ type Post struct {
 	Tags      pq.StringArray `gorm:"type:text[]"`
 	UserID    *uuid.UUID     `gorm:"type:uuid;index"`
 	User      *user.User     `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Version   uint           `gorm:"default:0"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -32,6 +33,7 @@ type DTO struct {
 	Content   string    `json:"content"`
 	Tags      []string  `json:"tags"`
 	User      *user.DTO `json:"user,omitempty"`
+	Version   uint      `json:"version"`
 	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
 }
@@ -46,7 +48,10 @@ type Form struct {
 
 // ToModel converts a Form into a Post model
 func (f *Form) ToModel() *Post {
-	userID := uuid.MustParse(f.UserID)
+	var userID uuid.UUID
+	if f.UserID != uuid.Nil.String() {
+		userID = uuid.MustParse(f.UserID)
+	}
 
 	return &Post{
 		ID:      uuid.New(),
@@ -70,6 +75,7 @@ func (p *Post) ToDto() *DTO {
 		Content:   p.Content,
 		Tags:      p.Tags,
 		User:      userDto,
+		Version:   p.Version,
 		CreatedAt: p.CreatedAt.Format("2006-01-02 15:04:05"),
 		UpdatedAt: p.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}

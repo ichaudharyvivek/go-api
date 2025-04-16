@@ -102,7 +102,7 @@ func (h *Handler) UpdatePostById(w http.ResponseWriter, r *http.Request) {
 
 	created, err := h.service.Update(r.Context(), post)
 	if err != nil {
-		httpx.Error(w, errors.DBDataInsertFailure, http.StatusInternalServerError)
+		httpx.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

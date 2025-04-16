@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"errors"
 
+	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/post"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -37,17 +37,35 @@ func (r *PostRepository) FindById(ctx context.Context, id uuid.UUID) (*post.Post
 }
 
 func (r *PostRepository) Update(ctx context.Context, input *post.Post) (*post.Post, error) {
-	var ep *post.Post
-	if err := r.db.WithContext(ctx).First(&ep, "id = ?", input.ID).Error; err != nil {
+	// Fetch the current post by ID to get all current data including version
+	var toUpdate post.Post
+	if err := r.db.WithContext(ctx).First(&toUpdate, "id = ?", input.ID).Error; err != nil {
 		return nil, err
 	}
 
-	result := r.db.WithContext(ctx).Model(&post.Post{}).Select("Title", "Content", "Author", "CreatedAt", "UpdatedAt").Where("id = ?", input.ID)
-	if result.RowsAffected > 0 {
-		return input, nil
+	// Store the current version for optimistic locking
+	currentVersion := toUpdate.Version
+
+	// Update the fields from input (only update fields that should be updated)
+	toUpdate.Title = input.Title
+	toUpdate.Content = input.Content
+	toUpdate.Tags = input.Tags
+	// Update any other fields that need updating...
+
+	// Increment the version for concurrency control
+	toUpdate.Version = currentVersion + 1
+
+	// Perform the update with version check
+	result := r.db.WithContext(ctx).Model(&post.Post{}).
+		Where("id = ? AND version = ?", toUpdate.ID, currentVersion).
+		Updates(&toUpdate)
+
+	if result.Error != nil || result.RowsAffected == 0 {
+		return nil, errors.New(errors.ErrDBAccessFailure, errors.DBDataUpdateFailure, result.Error)
 	}
 
-	return nil, errors.New("post not found or no changes made")
+	// Return the updated post
+	return &toUpdate, nil
 }
 
 func (r *PostRepository) DeleteById(ctx context.Context, id uuid.UUID) error {
