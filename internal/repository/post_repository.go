@@ -6,6 +6,7 @@ import (
 	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/post"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -21,9 +22,10 @@ func (r *PostRepository) Create(ctx context.Context, p *post.Post) error {
 	return r.db.WithContext(ctx).Create(p).Error
 }
 
-func (r *PostRepository) FindAll(ctx context.Context) (post.Posts, error) {
+func (r *PostRepository) FindAll(ctx context.Context, query *post.SearchQuery) (post.Posts, error) {
 	var posts post.Posts
-	err := r.db.Preload("User").WithContext(ctx).Find(&posts).Error
+	db := r.buildPostQuery(query).WithContext(ctx)
+	err := db.Preload("User").Find(&posts).Error
 	return posts, err
 }
 
@@ -75,4 +77,35 @@ func (r *PostRepository) DeleteById(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return result.Error
+}
+
+func (r *PostRepository) SearchByText(ctx context.Context, query string) (post.Posts, error) {
+	var posts post.Posts
+	if err := r.db.WithContext(ctx).Where("tsv @@ to_tsquery(?)", query).Preload("User").Find(&posts).Error; err != nil {
+		return nil, errors.New(errors.ErrDBNoRows, "no resource found", err)
+	}
+
+	return posts, nil
+}
+
+func (r *PostRepository) buildPostQuery(query *post.SearchQuery) *gorm.DB {
+	db := r.db
+
+	if query.Query != "" {
+		db = db.Where("tsv @@ plainto_tsquery(?)", query.Query)
+	}
+
+	if len(query.Tags) > 0 {
+		db = db.Where("tags @> ?", pq.Array(query.Tags))
+	}
+
+	if query.Title != "" {
+		db = db.Where("title ILIKE ?", "%"+query.Title+"%")
+	}
+
+	if query.UserID != uuid.Nil {
+		db = db.Where("user_id = ?", query.UserID)
+	}
+
+	return db
 }

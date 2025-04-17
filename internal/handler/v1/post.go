@@ -36,7 +36,19 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 
 // ListAllPosts handles GET /posts
 func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.service.FindAll(r.Context())
+	uID := uuid.Nil
+	if idx := r.URL.Query().Get("user_id"); idx != "" {
+		uID = uuid.MustParse(idx)
+	}
+
+	query := &post.SearchQuery{
+		Query:  r.URL.Query().Get("q"),
+		Tags:   r.URL.Query()["tags"],
+		Title:  r.URL.Query().Get("title"),
+		UserID: uID,
+	}
+
+	posts, err := h.service.FindAll(r.Context(), query)
 	if err != nil {
 		httpx.Error(w, fmt.Sprintf("Error: %s", err), http.StatusInternalServerError)
 		return

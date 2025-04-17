@@ -10,7 +10,7 @@ import (
 // This is what the business layer of Posts is capable off
 type Service interface {
 	Create(ctx context.Context, input *Form) (*Post, error)
-	FindAll(ctx context.Context) (Posts, error)
+	FindAll(ctx context.Context, query *SearchQuery) (Posts, error)
 	Update(ctx context.Context, input *Post) (*Post, error)
 	FindById(ctx context.Context, id uuid.UUID) (*Post, error)
 	DeleteById(ctx context.Context, id uuid.UUID) error
@@ -38,8 +38,8 @@ func (s *service) Create(ctx context.Context, input *Form) (*Post, error) {
 	return p, nil
 }
 
-func (s *service) FindAll(ctx context.Context) (Posts, error) {
-	return s.repo.FindAll(ctx)
+func (s *service) FindAll(ctx context.Context, query *SearchQuery) (Posts, error) {
+	return s.repo.FindAll(ctx, query)
 }
 
 func (s *service) FindById(ctx context.Context, id uuid.UUID) (*Post, error) {

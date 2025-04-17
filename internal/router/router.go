@@ -7,6 +7,7 @@ import (
 	"example.com/goapi/internal/domain/post"
 	"example.com/goapi/internal/domain/user"
 	v1 "example.com/goapi/internal/handler/v1"
+	m "example.com/goapi/internal/middleware"
 	"example.com/goapi/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -21,6 +22,7 @@ func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(15 * time.Second))
+	r.Use(m.LogTime())
 
 	r.Route("/api/v1", func(r chi.Router) {
 		registerPostRoutes(r, db, v)
