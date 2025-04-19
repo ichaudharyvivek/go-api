@@ -13,7 +13,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-playground/validator/v10"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
+
+	_ "example.com/goapi/docs"
 )
 
 func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
@@ -25,6 +28,7 @@ func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
 	r.Use(middleware.Timeout(15 * time.Second))
 	r.Use(m.LogTime())
 
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 	r.Route("/api/v1", func(r chi.Router) {
 		registerPostRoutes(r, db, v)
 		registerUserRoutes(r, db, v)

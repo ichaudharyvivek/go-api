@@ -1,3 +1,5 @@
+//	@BasePath	/api/v1
+
 package v1
 
 import (
@@ -34,7 +36,20 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	})
 }
 
-// ListAllPosts handles GET /posts
+// ListAllPosts godoc
+//
+//	@Summary		List all posts
+//	@Description	Get list of posts with optional filters
+//	@Tags			Posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	query		string		false	"User ID"
+//	@Param			q		query		string		false	"Search query"
+//	@Param			tags	query		[]string	false	"Tags filter (a,b,c means OR)"
+//	@Param			title	query		string		false	"Exact title match"
+//	@Success		200		{array}		post.DTO
+//	@Failure		500		{object}	httpx.APIResponse
+//	@Router			/posts [get]
 func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
 	uID := uuid.Nil
 	if idx := r.URL.Query().Get("user_id"); idx != "" {
@@ -57,7 +72,19 @@ func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
 	httpx.Ok(w, posts.ToDto())
 }
 
-// CreatePost handles POST /posts
+// CreatePost godoc
+//
+//	@Summary		Create a post
+//	@Description	Create a new post
+//	@Tags			Posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			post	body		post.Form	true	"Post body"
+//	@Success		201		{object}	post.DTO
+//	@Failure		400		{object}	httpx.APIResponse
+//	@Failure		422		{object}	httpx.APIResponse
+//	@Failure		500		{object}	httpx.APIResponse
+//	@Router			/posts [post]
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	var input = &post.Form{}
 	if err := json.NewDecoder(r.Body).Decode(input); err != nil {
@@ -80,6 +107,18 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	httpx.Created(w, post.ToDto())
 }
 
+// GetPostById godoc
+//
+//	@Summary		Get post by ID
+//	@Description	Get a single post
+//	@Tags			Posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Post ID"
+//	@Success		200	{object}	post.DTO
+//	@Failure		400	{object}	httpx.APIResponse
+//	@Failure		500	{object}	httpx.APIResponse
+//	@Router			/posts/{id} [get]
 func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
@@ -96,6 +135,20 @@ func (h *Handler) GetPostById(w http.ResponseWriter, r *http.Request) {
 	httpx.Ok(w, post.ToDto())
 }
 
+// UpdatePostById godoc
+//
+//	@Summary		Update post
+//	@Description	Update a post by ID
+//	@Tags			Posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string		true	"Post ID"
+//	@Param			post	body		post.Form	true	"Updated post body"
+//	@Success		200		{object}	post.DTO
+//	@Failure		400		{object}	httpx.APIResponse
+//	@Failure		422		{object}	httpx.APIResponse
+//	@Failure		500		{object}	httpx.APIResponse
+//	@Router			/posts/{id} [put]
 func (h *Handler) UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
@@ -121,6 +174,18 @@ func (h *Handler) UpdatePostById(w http.ResponseWriter, r *http.Request) {
 	httpx.Ok(w, created.ToDto())
 }
 
+// DeletePostBy godoc
+//
+//	@Summary		Delete post
+//	@Description	Delete a post by ID
+//	@Tags			Posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Post ID"
+//	@Success		200	{string}	string	"Deleted message"
+//	@Failure		400	{object}	httpx.APIResponse
+//	@Failure		500	{object}	httpx.APIResponse
+//	@Router			/posts/{id} [delete]
 func (h *Handler) DeletePostBy(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {

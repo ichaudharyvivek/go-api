@@ -1,5 +1,4 @@
 services:
-
   app:
     build: .
     image: go-api-app
@@ -8,12 +7,18 @@ services:
       - ./cmd:/app/cmd
       - ./internal:/app/internal
       - ./migrations:/app/migrations
+      - ./docs:/app/docs
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       db:
         condition: service_healthy
-    command: [ "sh", "-c", "/app/bin/migrate up && echo 'Migration done' && air -c .air.toml" ]
+    command:
+      [
+        'sh',
+        '-c',
+        "/app/bin/migrate up && echo 'Migration done' && air -c .air.toml",
+      ]
     restart: always
 
   db:
@@ -23,11 +28,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d app_db" ]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d app_db']
       interval: 3s
       timeout: 5s
       retries: 5
