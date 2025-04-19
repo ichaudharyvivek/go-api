@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"example.com/goapi/internal/domain/feed"
 	"example.com/goapi/internal/domain/post"
 	"example.com/goapi/internal/domain/user"
 	v1 "example.com/goapi/internal/handler/v1"
@@ -27,6 +28,7 @@ func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
 	r.Route("/api/v1", func(r chi.Router) {
 		registerPostRoutes(r, db, v)
 		registerUserRoutes(r, db, v)
+		registerFeedRoutes(r, db, v)
 	})
 
 	return r
@@ -44,4 +46,11 @@ func registerUserRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
 	service := user.NewService(repo)
 	handler := v1.NewUserHandler(service, v)
 	handler.RegisterUserRoutes(r)
+}
+
+func registerFeedRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
+	repo := repository.NewFeedRepository(db)
+	service := feed.NewService(repo)
+	handler := v1.NewFeedHandler(service, v)
+	handler.RegisterFeedRoutes(r)
 }
