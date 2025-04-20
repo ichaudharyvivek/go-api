@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// NOTE: This file is only for understanding ✅
+
 // All middleware returns this type
 type Middleware func(next http.Handler) http.Handler
 

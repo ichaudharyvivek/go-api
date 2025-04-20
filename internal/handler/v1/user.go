@@ -9,11 +9,13 @@ import (
 
 	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/user"
+	"example.com/goapi/internal/utils/logger"
 	_v "example.com/goapi/internal/utils/validator"
 	"example.com/goapi/pkg/httpx"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type UserHandler struct {
@@ -37,6 +39,7 @@ func (h *UserHandler) RegisterUserRoutes(r chi.Router) {
 }
 
 // ListAllUsers godoc
+//
 //	@Summary		List all users
 //	@Description	Get a list of all registered users
 //	@Tags			users
@@ -46,17 +49,29 @@ func (h *UserHandler) RegisterUserRoutes(r chi.Router) {
 //	@Failure		500	{object}	httpx.APIResponse
 //	@Router			/users [get]
 func (h *UserHandler) ListAllUsers(w http.ResponseWriter, r *http.Request) {
+	logger := logger.FromContext(r.Context())
+
 	users, err := h.service.List(r.Context())
 	if err != nil {
-		fmt.Printf("Trace: %+v\n", err)
-		httpx.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Error("Failed to fetch users",
+			zap.Error(err),
+			zap.String("path", r.URL.Path),
+			zap.String("method", r.Method),
+		)
+
+		httpx.Error(w, "Failed to fetch user", http.StatusInternalServerError)
 		return
 	}
+
+	logger.Debug("Successfully fetched users",
+		zap.Int("count", len(users)),
+	)
 
 	httpx.Ok(w, users.ToDto())
 }
 
 // CreateUser godoc
+//
 //	@Summary		Create a new user
 //	@Description	Create a user with email and password
 //	@Tags			users
@@ -96,6 +111,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUserById godoc
+//
 //	@Summary		Get user by ID
 //	@Description	Fetch a single user by their UUID
 //	@Tags			users
@@ -129,6 +145,7 @@ func (h *UserHandler) GetUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateUserById godoc
+//
 //	@Summary		Update user by ID
 //	@Description	Update a user's information
 //	@Tags			users
@@ -146,6 +163,7 @@ func (h *UserHandler) UpdateUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteUserById godoc
+//
 //	@Summary		Delete user by ID
 //	@Description	Permanently remove a user by UUID
 //	@Tags			users
