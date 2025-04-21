@@ -23,6 +23,9 @@ const (
 	ErrInvalidURLParam      = "INVALID_URL_PARAM"
 	ErrMissingRequiredField = "MISSING_REQUIRED_FIELD"
 	ErrInvalidEnumValue     = "INVALID_ENUM_VALUE"
+	ErrTokenGeneration      = "FAILED_TOKEN_GENERATION"
+	ErrInvalidCredentials   = "invalid credentials"
+	ErrUnauthorized         = "UNAUTHORIZED_TOKEN"
 
 	// Authentication & Authorization
 	ErrAuthTokenMissing  = "AUTH_TOKEN_MISSING"

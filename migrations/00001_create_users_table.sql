@@ -9,7 +9,8 @@ CREATE TABLE
         email citext UNIQUE NOT NULL,
         password bytea NOT NULL,
         created_at TIMESTAMP NOT NULL,
-        updated_at TIMESTAMP NOT NULL
+        updated_at TIMESTAMP NOT NULL,
+        is_verified BOOLEAN DEFAULT FALSE
     );
 
 -- +goose Down

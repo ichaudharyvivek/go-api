@@ -10,10 +10,15 @@ import (
 	"example.com/goapi/internal/config/env"
 	database "example.com/goapi/internal/database"
 	router "example.com/goapi/internal/router"
+	"example.com/goapi/internal/utils/logger"
 	"example.com/goapi/internal/utils/validator"
 )
 
+var appEnv = env.GetString("APP_ENV", "dev")
+
 func main() {
+	logger.Setup(appEnv == "prod")
+
 	c := config.New()
 	v := validator.New()
 	db, _ := database.NewDB(c)

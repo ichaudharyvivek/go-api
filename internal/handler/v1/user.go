@@ -9,13 +9,12 @@ import (
 
 	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/user"
-	"example.com/goapi/internal/utils/logger"
 	_v "example.com/goapi/internal/utils/validator"
 	"example.com/goapi/pkg/httpx"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
+	"github.com/rs/zerolog"
 )
 
 type UserHandler struct {
@@ -49,24 +48,22 @@ func (h *UserHandler) RegisterUserRoutes(r chi.Router) {
 //	@Failure		500	{object}	httpx.APIResponse
 //	@Router			/users [get]
 func (h *UserHandler) ListAllUsers(w http.ResponseWriter, r *http.Request) {
-	logger := logger.FromContext(r.Context())
+	// Get logger from context
+	logger := zerolog.Ctx(r.Context())
 
 	users, err := h.service.List(r.Context())
 	if err != nil {
-		logger.Error("Failed to fetch users",
-			zap.Error(err),
-			zap.String("path", r.URL.Path),
-			zap.String("method", r.Method),
-		)
+		logger.Error().
+			Err(err).
+			Str("path", r.URL.Path).
+			Str("method", r.Method).
+			Msg("Failed to fetch users")
 
-		httpx.Error(w, "Failed to fetch user", http.StatusInternalServerError)
+		httpx.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	logger.Debug("Successfully fetched users",
-		zap.Int("count", len(users)),
-	)
-
+	logger.Debug().Int("count", len(users)).Msg("Successfully fetched users")
 	httpx.Ok(w, users.ToDto())
 }
 

@@ -4,34 +4,32 @@ import (
 	"net/http"
 	"time"
 
-	"example.com/goapi/internal/utils/logger"
 	"github.com/go-chi/chi/v5/middleware"
-
-	"go.uber.org/zap"
+	"github.com/rs/zerolog/log"
 )
 
 func LogContext(next http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		// Get request ID from Chi's middleware
-		requestID := r.Context().Value(middleware.RequestIDKey).(string)
+		// Create a logger with request-specific fields
+		logger := log.With().
+			Str("request_id", middleware.GetReqID(r.Context())).
+			Str("method", r.Method).
+			Str("path", r.URL.Path).
+			Logger()
 
-		// Create context with logger fields
-		ctx := logger.NewContext(r.Context(),
-			zap.String("method", r.Method),
-			zap.String("path", r.URL.Path),
-			zap.String("request_id", requestID),
-		)
+		// Inject logger into context
+		ctx := logger.WithContext(r.Context())
 
-		// Continue with enriched context
-		next.ServeHTTP(w, r.WithContext(ctx))
+		// Chi's response wrapper to capture status code
+		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+		next.ServeHTTP(ww, r.WithContext(ctx))
 
-		// Log completion
-		logger.FromContext(ctx).Info("Request completed",
-			zap.Duration("duration", time.Since(start)),
-		)
-	}
-
-	return http.HandlerFunc(fn)
+		// Log request completion
+		logger.Info().
+			Int("status", ww.Status()).
+			Dur("duration_ms", time.Since(start)).
+			Msg("request completed")
+	})
 }
