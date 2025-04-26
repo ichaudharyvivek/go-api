@@ -7,6 +7,7 @@ import (
 
 	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/auth"
+	m "example.com/goapi/internal/middleware"
 	_v "example.com/goapi/internal/utils/validator"
 	"example.com/goapi/pkg/httpx"
 	"github.com/go-chi/chi/v5"
@@ -27,8 +28,12 @@ func (h *AuthHandler) RegisterAuthRoutes(r chi.Router) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", h.RegisterUser)
 		r.Post("/login", h.Login)
-		r.Post("/logout", h.Logout)
-		r.Post("/refresh", h.RefreshTokens)
+
+		r.Group(func(r chi.Router) {
+			r.Use(m.Authenticate("secret"))
+			r.Post("/logout", h.Logout)
+			r.Post("/refresh", h.RefreshTokens)
+		})
 	})
 }
 

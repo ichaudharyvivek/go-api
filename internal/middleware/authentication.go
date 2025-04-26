@@ -14,7 +14,9 @@ type authKey struct{}
 
 var userIDKey = authKey{}
 
-func AuthMiddleware(secret string) func(http.Handler) http.Handler {
+// NOTE: The secret here is the same key we used to create accessToken.
+// Use the same key or the middleware will fail with invalid signature exception.
+func Authenticate(secret string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenString := extractTokenFromHeader(r)

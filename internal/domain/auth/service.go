@@ -6,6 +6,7 @@ import (
 
 	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/user"
+	m "example.com/goapi/internal/middleware"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -79,9 +80,13 @@ func (s *service) Login(ctx context.Context, email, password string) (*TokenPair
 
 // Logout implements Service.
 func (s *service) Logout(ctx context.Context, refreshToken string) error {
+	userID, ok := m.GetUserIDFromContext(ctx)
+	if !ok {
+		return errors.New(errors.ErrInternalServer, "cannot get userID from session", nil)
+	}
+
 	// 1. Get hash token via userId
-	uuidx := uuid.MustParse("7e61be1e-9fc5-42f8-8c77-8accff9ab69c")
-	x, err := s.repo.GetRefreshTokenHash(ctx, uuidx)
+	x, err := s.repo.GetRefreshTokenHash(ctx, userID)
 	if err != nil {
 		// Don't reveal whether token exists or not
 		return errors.New(errors.ErrInternalServer, "cannot get refresh token by hash", err)
