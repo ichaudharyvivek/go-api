@@ -7,6 +7,7 @@ import (
 )
 
 // NOTE: This file is only for understanding ✅
+//		 This is not used anywhere.
 
 // All middleware returns this type
 type Middleware func(next http.Handler) http.Handler

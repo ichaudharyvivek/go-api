@@ -106,12 +106,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true, // Enable in production (HTTPS only)
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(24 * time.Hour * 7), // 7 days
+		Expires:  time.Now().Add(1 * 24 * time.Hour), // 1 day
+		// MaxAge:   int(24 * time.Hour * 7), // This is redundant but can be used together with expires because some browsers still check this attribute
 	})
 
 	httpx.Ok(w, map[string]any{
 		"access_token": tokens.AccessToken,
-		"expires_in":   15 * time.Minute,
+		"expires_in":   "15 mins",
 	})
 }
 
@@ -125,6 +126,8 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, "Missing refresh token", http.StatusBadRequest)
 		return
 	}
+	// If cookie exists, log its value
+	logger.Debug().Str("refresh_token", cookie.Value).Msg("Retrieved refresh token")
 
 	if err := h.service.Logout(r.Context(), cookie.Value); err != nil {
 		if apiErr, ok := err.(*errors.ApiError); ok {

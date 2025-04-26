@@ -47,11 +47,11 @@ func (r *AuthRepository) CreateRefreshToken(ctx context.Context, userID uuid.UUI
 	return r.db.WithContext(ctx).Create(token).Error
 }
 
-func (r *AuthRepository) GetRefreshTokenByHash(ctx context.Context, tokenHash string) (*auth.RefreshToken, error) {
-	var token *auth.RefreshToken
+func (r *AuthRepository) GetRefreshTokenHash(ctx context.Context, userID uuid.UUID) (*auth.RefreshToken, error) {
+	var token auth.RefreshToken
 	err := r.db.WithContext(ctx).
-		Where("token_hash = ?", tokenHash).
-		First(token).
+		Where("user_id = ?", userID).
+		First(&token).
 		Error
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (r *AuthRepository) GetRefreshTokenByHash(ctx context.Context, tokenHash st
 		}
 		return nil, err
 	}
-	return token, nil
+	return &token, nil
 }
 
 func (r *AuthRepository) RevokeRefreshToken(ctx context.Context, tokenHash string) error {

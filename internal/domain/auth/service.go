@@ -79,19 +79,16 @@ func (s *service) Login(ctx context.Context, email, password string) (*TokenPair
 
 // Logout implements Service.
 func (s *service) Logout(ctx context.Context, refreshToken string) error {
-	// 1. Hash the provided token
-	x, _ := hashPassword(refreshToken)
-	tokenHash := string(x)
-
-	// 2. Verify the token exists
-	_, err := s.repo.GetRefreshTokenByHash(ctx, tokenHash)
+	// 1. Get hash token via userId
+	uuidx := uuid.MustParse("7e61be1e-9fc5-42f8-8c77-8accff9ab69c")
+	x, err := s.repo.GetRefreshTokenHash(ctx, uuidx)
 	if err != nil {
 		// Don't reveal whether token exists or not
-		return nil
+		return errors.New(errors.ErrInternalServer, "cannot get refresh token by hash", err)
 	}
 
-	// 3. Revoke the token
-	if err := s.repo.RevokeRefreshToken(ctx, tokenHash); err != nil {
+	// 2. Revoke the token
+	if err := s.repo.RevokeRefreshToken(ctx, x.TokenHash); err != nil {
 		return errors.New(errors.ErrInternalServer, "failed to revoke token", err)
 	}
 
@@ -100,37 +97,37 @@ func (s *service) Logout(ctx context.Context, refreshToken string) error {
 
 // RefreshTokens implements Service.
 func (s *service) RefreshTokens(ctx context.Context, refreshToken string) (*TokenPair, error) {
-	// 1. Verify the refresh token exists and isn't revoked
-	x, _ := hashPassword(refreshToken)
-	tokenHash := string(x)
+	// // 1. Verify the refresh token exists and isn't revoked
+	// x, _ := hashPassword(refreshToken)
+	// tokenHash := string(x)
 
-	storedToken, err := s.repo.GetRefreshTokenByHash(ctx, tokenHash)
-	if err != nil {
-		return nil, errors.New(errors.ErrUnauthorized, "invalid refresh token", err)
-	}
+	// storedToken, err := s.repo.GetRefreshTokenHash(ctx, tokenHash)
+	// if err != nil {
+	// 	return nil, errors.New(errors.ErrUnauthorized, "invalid refresh token", err)
+	// }
 
-	// 2. Check if token is expired
-	if time.Now().After(storedToken.ExpiresAt) {
-		return nil, errors.New(errors.ErrUnauthorized, "refresh token expired", err)
-	}
+	// // 2. Check if token is expired
+	// if time.Now().After(storedToken.ExpiresAt) {
+	// 	return nil, errors.New(errors.ErrUnauthorized, "refresh token expired", err)
+	// }
 
-	// 3. Check if token is revoked
-	if storedToken.Revoked {
-		// Security measure: revoke all tokens for this user if a revoked token is used
-		_ = s.repo.RevokeAllRefreshTokens(ctx, storedToken.UserID)
-		return nil, errors.New(errors.ErrUnauthorized, "refresh token revoked", err)
-	}
+	// // 3. Check if token is revoked
+	// if storedToken.Revoked {
+	// 	// Security measure: revoke all tokens for this user if a revoked token is used
+	// 	_ = s.repo.RevokeAllRefreshTokens(ctx, storedToken.UserID)
+	// 	return nil, errors.New(errors.ErrUnauthorized, "refresh token revoked", err)
+	// }
 
-	// 4. Invalidate the current refresh token (rotation)
-	if err := s.repo.RevokeRefreshToken(ctx, tokenHash); err != nil {
-		return nil, errors.New(errors.ErrInternalServer, "failed to revoke token", err)
-	}
+	// // 4. Invalidate the current refresh token (rotation)
+	// if err := s.repo.RevokeRefreshToken(ctx, tokenHash); err != nil {
+	// 	return nil, errors.New(errors.ErrInternalServer, "failed to revoke token", err)
+	// }
 
-	// 5. Generate new token pair
-	newTokens, err := s.generateTokenPair(ctx, storedToken.UserID)
-	if err != nil {
-		return nil, errors.New(errors.ErrInternalServer, "failed to generate tokens", err)
-	}
+	// // 5. Generate new token pair
+	// newTokens, err := s.generateTokenPair(ctx, storedToken.UserID)
+	// if err != nil {
+	// 	return nil, errors.New(errors.ErrInternalServer, "failed to generate tokens", err)
+	// }
 
-	return newTokens, nil
+	return &TokenPair{}, nil
 }
