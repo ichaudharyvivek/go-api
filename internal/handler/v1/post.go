@@ -9,6 +9,7 @@ import (
 
 	"example.com/goapi/internal/common/errors"
 	"example.com/goapi/internal/domain/post"
+	m "example.com/goapi/internal/middleware"
 	_v "example.com/goapi/internal/utils/validator"
 	"example.com/goapi/pkg/httpx"
 	"github.com/go-chi/chi/v5"
@@ -29,10 +30,14 @@ func NewHandler(s post.Service, v *validator.Validate) *Handler {
 func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Route("/posts", func(r chi.Router) {
 		r.Get("/", h.ListAllPosts)
-		r.Post("/", h.CreatePost)
 		r.Get("/{id}", h.GetPostById)
-		r.Put("/{id}", h.UpdatePostById)
-		r.Delete("/{id}", h.DeletePostBy)
+
+		r.Group(func(r chi.Router) {
+			r.Use(m.Authenticate("secret"))
+			r.Post("/", h.CreatePost)
+			r.Put("/{id}", h.UpdatePostById)
+			r.Delete("/{id}", h.DeletePostBy)
+		})
 	})
 }
 
