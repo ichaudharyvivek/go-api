@@ -196,6 +196,6 @@ func (h *AuthHandler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 
 	httpx.Ok(w, map[string]interface{}{
 		"access_token": tokens.AccessToken,
-		"expires_in":   15 * time.Minute,
+		"expires_in":   "15 mins",
 	})
 }

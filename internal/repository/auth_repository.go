@@ -39,6 +39,7 @@ func (r *AuthRepository) GetByEmail(ctx context.Context, email string) (*user.Us
 // Token methods
 func (r *AuthRepository) CreateRefreshToken(ctx context.Context, userID uuid.UUID, tokenHash string, expiresAt time.Time) error {
 	token := &auth.RefreshToken{
+		ID:        uuid.New(),
 		UserID:    userID,
 		TokenHash: tokenHash,
 		ExpiresAt: expiresAt,

@@ -101,6 +101,7 @@ func (s *service) Logout(ctx context.Context, refreshToken string) error {
 }
 
 // RefreshTokens implements Service.
+// TODO: Fix Refresh Token method
 func (s *service) RefreshTokens(ctx context.Context, refreshToken string) (*TokenPair, error) {
 	// // 1. Verify the refresh token exists and isn't revoked
 	// x, _ := hashPassword(refreshToken)
