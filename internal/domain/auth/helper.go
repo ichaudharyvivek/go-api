@@ -30,10 +30,13 @@ func (s *service) generateTokenPair(ctx context.Context, userID uuid.UUID) (*Tok
 
 // Private helper methods
 func (s *service) generateAccessToken(userID uuid.UUID) (string, error) {
-	claims := jwt.RegisteredClaims{
-		Subject:   userID.String(),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.accessToken.Expiration)),
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	claims := JWTClaim{
+		UserID: userID.String(),
+		Roles:  []string{"user"},
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.accessToken.Expiration)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

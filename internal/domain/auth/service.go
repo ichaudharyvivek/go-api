@@ -80,13 +80,13 @@ func (s *service) Login(ctx context.Context, email, password string) (*TokenPair
 
 // Logout implements Service.
 func (s *service) Logout(ctx context.Context, refreshToken string) error {
-	userID, ok := m.GetUserIDFromContext(ctx)
+	userData, ok := m.GetUserDetailsFromContext(ctx)
 	if !ok {
 		return errors.New(errors.ErrInternalServer, "cannot get userID from session", nil)
 	}
 
 	// 1. Get hash token via userId
-	x, err := s.repo.GetRefreshTokenHash(ctx, userID)
+	x, err := s.repo.GetRefreshTokenHash(ctx, userData.UserID)
 	if err != nil {
 		// Don't reveal whether token exists or not
 		return errors.New(errors.ErrInternalServer, "cannot get refresh token by hash", err)

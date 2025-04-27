@@ -3,6 +3,7 @@ package auth
 import (
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -34,4 +35,10 @@ type RefreshToken struct {
 	ExpiresAt time.Time `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	Revoked   bool      `gorm:"default:false"`
+}
+
+type JWTClaim struct {
+	UserID string   `json:"userID"`
+	Roles  []string `json:"roles"`
+	jwt.RegisteredClaims
 }

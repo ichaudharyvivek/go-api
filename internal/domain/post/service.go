@@ -2,8 +2,9 @@ package post
 
 import (
 	"context"
-	"errors"
 
+	"example.com/goapi/internal/common/errors"
+	m "example.com/goapi/internal/middleware"
 	"github.com/google/uuid"
 )
 
@@ -26,10 +27,17 @@ func NewService(r Repository) Service {
 
 func (s *service) Create(ctx context.Context, input *Form) (*Post, error) {
 	if input.Title == "" || input.Content == "" {
-		return nil, errors.New("title or content cannot be empty")
+		return nil, errors.New(errors.ErrInternalServer, "title or content cannot be empty", nil)
+	}
+
+	userData, ok := m.GetUserDetailsFromContext(ctx)
+	if !ok {
+		return nil, errors.New(errors.ErrInternalServer, "cannot get userID from session", nil)
 	}
 
 	p := input.ToModel()
+	p.UserID = &userData.UserID
+
 	err := s.repo.Create(ctx, p)
 	if err != nil {
 		return nil, err

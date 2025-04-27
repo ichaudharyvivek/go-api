@@ -43,22 +43,16 @@ type Form struct {
 	Title   string   `json:"title" validate:"required,max=255"`
 	Content string   `json:"content" validate:"required"`
 	Tags    []string `json:"tags"`
-	UserID  string   `json:"user_id" validate:"required"`
 }
 
 // ToModel converts a Form into a Post model
 func (f *Form) ToModel() *Post {
-	var userID uuid.UUID
-	if f.UserID != uuid.Nil.String() {
-		userID = uuid.MustParse(f.UserID)
-	}
-
 	return &Post{
 		ID:      uuid.New(),
 		Title:   f.Title,
 		Content: f.Content,
 		Tags:    f.Tags,
-		UserID:  &userID,
+		UserID:  &uuid.Nil,
 	}
 }
 
