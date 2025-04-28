@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"expvar"
 	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 
 	"example.com/goapi/docs"
 	"example.com/goapi/internal/config"
@@ -16,6 +18,7 @@ import (
 	"example.com/goapi/internal/utils/validator"
 )
 
+var version = "0.0.1"
 var appEnv = env.GetString("APP_ENV", "dev")
 var isProd = appEnv == "prod"
 
@@ -44,6 +47,15 @@ func main() {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 
+	// Collecting Metrics
+	expvar.NewString("version").Set(version)
+	expvar.Publish("database", expvar.Func(func() any {
+		return rd.PoolStats()
+	}))
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
+
 	log.Println("Starting server at port" + s.Addr)
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal("Server startup failed!!")
@@ -51,7 +63,7 @@ func main() {
 }
 
 func swaggerInit() {
-	docs.SwaggerInfo.Version = "0.0.1"
+	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Host = env.GetString("APP_HOST", "localhost:8080")
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	docs.SwaggerInfo.Title = "GopherSocial Media App API"

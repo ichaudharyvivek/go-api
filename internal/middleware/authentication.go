@@ -22,7 +22,8 @@ var userDataContext = userDataKey{}
 // NOTE: The secret here is the same key we used to create accessToken.
 // Use the same key or the middleware will fail with invalid signature exception.
 // Authenticate is a middleware that checks if the request is authenticated via JWT.
-func Authenticate(secret string) func(http.Handler) http.Handler {
+func Authenticate() func(http.Handler) http.Handler {
+	secret := "secret" // use env variable here
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenString := extractTokenFromHeader(r)

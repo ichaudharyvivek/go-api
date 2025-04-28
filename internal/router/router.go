@@ -1,6 +1,7 @@
 package router
 
 import (
+	"expvar"
 	"net/http"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 	"example.com/goapi/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-playground/validator/v10"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
@@ -23,14 +25,10 @@ import (
 
 func NewRouter(db *gorm.DB, v *validator.Validate, rd *cache.Client) http.Handler {
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Recoverer)
-	// r.Use(middleware.Logger) // Not required because we have our own middleware for logging
-	r.Use(middleware.Timeout(60 * time.Second))
-	r.Use(m.LogContext)
+	applyMiddlewares(r)
 
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
+	r.Get("/debug/vars", expvar.Handler().ServeHTTP)
 	r.Route("/api/v1", func(r chi.Router) {
 		registerPostRoutes(r, db, v, rd)
 		registerUserRoutes(r, db, v, rd)
@@ -67,4 +65,21 @@ func registerAuthRoutes(r chi.Router, db *gorm.DB, v *validator.Validate, rd *ca
 	service := auth.NewService(repo, "secret", "refresh", 15*time.Minute, 7*24*time.Hour)
 	handler := v1.NewAuthHandler(service, v)
 	handler.RegisterAuthRoutes(r)
+}
+
+func applyMiddlewares(r *chi.Mux) {
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Recoverer)
+	// r.Use(middleware.Logger) // Not required because we have our own middleware for logging
+	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(m.LogContext)
+	r.Use(cors.Handler(cors.Options{
+		// Allow all origins for simplicity
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
+		ExposedHeaders: []string{"X-Custom-Header"},
+		MaxAge:         300, // 5 minutes
+	}))
 }

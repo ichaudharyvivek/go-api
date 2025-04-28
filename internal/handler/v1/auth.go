@@ -30,7 +30,7 @@ func (h *AuthHandler) RegisterAuthRoutes(r chi.Router) {
 		r.Post("/login", h.Login)
 
 		r.Group(func(r chi.Router) {
-			r.Use(m.Authenticate("secret"))
+			r.Use(m.Authenticate())
 			r.Post("/logout", h.Logout)
 			r.Post("/refresh", h.RefreshTokens)
 		})

@@ -37,7 +37,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 		r.Get("/{id}", h.GetPostById)
 
 		r.Group(func(r chi.Router) {
-			r.Use(m.Authenticate("secret"))
+			r.Use(m.Authenticate())
 			r.With(m.AllowAccess([]string{"user", "admin"})).Post("/", h.CreatePost)
 			r.Put("/{id}", h.UpdatePostById)
 			r.Delete("/{id}", h.DeletePostBy)
