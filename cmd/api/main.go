@@ -18,7 +18,8 @@ import (
 	"example.com/goapi/internal/utils/validator"
 )
 
-var version = "0.0.1"
+const version = "0.0.1"
+
 var appEnv = env.GetString("APP_ENV", "dev")
 var isProd = appEnv == "prod"
 
