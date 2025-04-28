@@ -5,7 +5,6 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -68,7 +67,6 @@ func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
 		r.URL.Query().Get("title"),
 	)
 
-	log.Printf("Cache Key: ", cacheKey)
 	// Try to get from cache first
 	cachedData, err := h.redis.Get(r.Context(), cacheKey).Bytes()
 	if err == nil {
