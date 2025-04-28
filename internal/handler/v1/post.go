@@ -5,9 +5,12 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"example.com/goapi/internal/common/errors"
+	"example.com/goapi/internal/database/cache"
 	"example.com/goapi/internal/domain/post"
 	m "example.com/goapi/internal/middleware"
 	_v "example.com/goapi/internal/utils/validator"
@@ -20,10 +23,11 @@ import (
 type Handler struct {
 	service   post.Service
 	validator *validator.Validate
+	redis     *cache.Client
 }
 
-func NewHandler(s post.Service, v *validator.Validate) *Handler {
-	return &Handler{service: s, validator: v}
+func NewHandler(s post.Service, v *validator.Validate, rd *cache.Client) *Handler {
+	return &Handler{service: s, validator: v, redis: rd}
 }
 
 // RegisterRoutes mounts the post routes on the given router
@@ -56,6 +60,30 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 //	@Failure		500		{object}	httpx.APIResponse
 //	@Router			/posts [get]
 func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
+	// Generate a cache key based on all query parameters
+	cacheKey := fmt.Sprintf("posts:%s:%s:%v:%s",
+		r.URL.Query().Get("user_id"),
+		r.URL.Query().Get("q"),
+		r.URL.Query()["tags"],
+		r.URL.Query().Get("title"),
+	)
+
+	log.Printf("Cache Key: ", cacheKey)
+	// Try to get from cache first
+	cachedData, err := h.redis.Get(r.Context(), cacheKey).Bytes()
+	if err == nil {
+		var posts post.Posts
+		err = json.Unmarshal(cachedData, &posts)
+		if err != nil {
+			httpx.Error(w, fmt.Sprintf("Error unmarshalling cache data: %s", err), http.StatusInternalServerError)
+			return
+		}
+
+		httpx.Ok(w, posts)
+		return
+	}
+
+	// Cache miss - proceed with normal processing
 	uID := uuid.Nil
 	if idx := r.URL.Query().Get("user_id"); idx != "" {
 		uID = uuid.MustParse(idx)
@@ -74,7 +102,15 @@ func (h *Handler) ListAllPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.Ok(w, posts.ToDto())
+	// Convert to DTO and cache the result
+	postsDto := posts.ToDto()
+	jsonData, err := json.Marshal(postsDto)
+	if err == nil {
+		// Cache for 5 minutes (adjust TTL as needed)
+		h.redis.Set(r.Context(), cacheKey, jsonData, 5*time.Minute)
+	}
+
+	httpx.Ok(w, postsDto)
 }
 
 // CreatePost godoc

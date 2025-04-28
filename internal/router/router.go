@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"example.com/goapi/internal/database/cache"
 	"example.com/goapi/internal/domain/auth"
 	"example.com/goapi/internal/domain/feed"
 	"example.com/goapi/internal/domain/post"
@@ -20,48 +21,48 @@ import (
 	_ "example.com/goapi/docs"
 )
 
-func NewRouter(db *gorm.DB, v *validator.Validate) http.Handler {
+func NewRouter(db *gorm.DB, v *validator.Validate, rd *cache.Client) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
-	// r.Use(middleware.Logger)
+	// r.Use(middleware.Logger) // Not required because we have our own middleware for logging
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(m.LogContext)
 
 	r.Get("/swagger/*", httpSwagger.WrapHandler)
 	r.Route("/api/v1", func(r chi.Router) {
-		registerPostRoutes(r, db, v)
-		registerUserRoutes(r, db, v)
-		registerFeedRoutes(r, db, v)
-		registerAuthRoutes(r, db, v)
+		registerPostRoutes(r, db, v, rd)
+		registerUserRoutes(r, db, v, rd)
+		registerFeedRoutes(r, db, v, rd)
+		registerAuthRoutes(r, db, v, rd)
 	})
 
 	return r
 }
 
-func registerPostRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
+func registerPostRoutes(r chi.Router, db *gorm.DB, v *validator.Validate, rd *cache.Client) {
 	repo := repository.NewRepository(db)
 	service := post.NewService(repo)
-	handler := v1.NewHandler(service, v)
+	handler := v1.NewHandler(service, v, rd)
 	handler.RegisterRoutes(r)
 }
 
-func registerUserRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
+func registerUserRoutes(r chi.Router, db *gorm.DB, v *validator.Validate, rd *cache.Client) {
 	repo := repository.NewUserRepository(db)
 	service := user.NewService(repo)
 	handler := v1.NewUserHandler(service, v)
 	handler.RegisterUserRoutes(r)
 }
 
-func registerFeedRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
+func registerFeedRoutes(r chi.Router, db *gorm.DB, v *validator.Validate, rd *cache.Client) {
 	repo := repository.NewFeedRepository(db)
 	service := feed.NewService(repo)
 	handler := v1.NewFeedHandler(service, v)
 	handler.RegisterFeedRoutes(r)
 }
 
-func registerAuthRoutes(r chi.Router, db *gorm.DB, v *validator.Validate) {
+func registerAuthRoutes(r chi.Router, db *gorm.DB, v *validator.Validate, rd *cache.Client) {
 	repo := repository.NewAuthRepository(db)
 	service := auth.NewService(repo, "secret", "refresh", 15*time.Minute, 7*24*time.Hour)
 	handler := v1.NewAuthHandler(service, v)

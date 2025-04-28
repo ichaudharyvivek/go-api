@@ -27,7 +27,7 @@ func main() {
 	db, _ := database.NewDB(c)
 	rd := cache.NewClient(c)
 
-	r := router.NewRouter(db, v)
+	r := router.NewRouter(db, v, rd)
 	s := &http.Server{
 		Addr:         fmt.Sprintf(":%d", c.Server.Port),
 		Handler:      r,
